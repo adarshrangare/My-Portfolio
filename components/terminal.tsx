@@ -317,17 +317,13 @@ export default function Terminal() {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 hover:bg-purple-600/20"
-                onClick={() => setIsMinimized(true)}
-              >
-                <Minimize2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 hover:bg-purple-600/20"
                 onClick={() => setIsMaximized(!isMaximized)}
               >
-                <Maximize2 className="h-4 w-4" />
+                {isMaximized ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
