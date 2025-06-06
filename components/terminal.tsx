@@ -178,12 +178,23 @@ export default function Terminal() {
 
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [history]);
+
+  useEffect(() => {
+    let timeoutId: string | number | NodeJS.Timeout | undefined;
+    if (inView) {
+      timeoutId = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 500); // wait half a second to avoid scroll jump
+    }
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [inView]);
 
   const executeCommand = (cmd: string) => {
     const command = cmd.toLowerCase().trim();
@@ -201,10 +212,7 @@ export default function Terminal() {
     } else if (command === "") {
       output = [""];
     } else {
-      output = [
-        `Command '${command}' not found.`,
-        "Type 'help' to see available commands.",
-      ];
+      output = [`Command '${command}' not found.`, "Type 'help' to see available commands."];
     }
 
     const newCommand: Command = {
@@ -279,16 +287,13 @@ export default function Terminal() {
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full mb-6"></div>
           <p className="text-gray-300 max-w-2xl mx-auto text-lg">
-            Explore my portfolio through terminal commands. Type 'help' to get
-            started!
+            Explore my portfolio through terminal commands. Type 'help' to get started!
           </p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
-          animate={
-            inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }
-          }
+          animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className={`mx-auto glass border-purple-500/30 rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/20 ${
             isMaximized ? "fixed inset-4 z-50" : "max-w-4xl"
@@ -346,13 +351,9 @@ export default function Terminal() {
                 >
                   {cmd.input !== "welcome" && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-purple-400">
-                        guest@adarsh-portfolio:~$
-                      </span>
+                      <span className="text-purple-400">guest@adarsh-dev:~$</span>
                       <span className="text-white">{cmd.input}</span>
-                      <span className="text-gray-500 text-xs ml-auto">
-                        {cmd.timestamp}
-                      </span>
+                      <span className="text-gray-500 text-xs ml-auto">{cmd.timestamp}</span>
                     </div>
                   )}
                   <div className="pl-4 space-y-1">
@@ -374,7 +375,7 @@ export default function Terminal() {
 
             {/* Input Line */}
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
-              <span className="text-purple-400">guest@adarsh-portfolio:~$</span>
+              <span className="text-purple-400">guest@adarsh-dev:~$</span>
               <input
                 ref={inputRef}
                 type="text"
@@ -383,7 +384,6 @@ export default function Terminal() {
                 onKeyDown={handleKeyDown}
                 className="flex-1 bg-transparent outline-none text-white"
                 placeholder="Type a command..."
-                autoFocus
               />
               <motion.div
                 animate={{ opacity: [1, 0, 1] }}
